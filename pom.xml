@@ -3,12 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
-    </parent>
-
     <groupId>com.avenga</groupId>
     <artifactId>OnlineBookstoreTest</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -17,9 +11,10 @@
 
     <properties>
         <profile.default>dev</profile.default>
-        <suite.default>suite/all.xml</suite.default>
+        <suite.default>suite/All.xml</suite.default>
 
         <java.version>21</java.version>
+        <spring.version>2.7.18</spring.version>
         <openfeign.version>3.1.8</openfeign.version>
         <lombok.version>1.18.30</lombok.version>
         <testng.version>7.9.0</testng.version>
@@ -37,6 +32,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
