@@ -22,6 +22,7 @@
         <allure.version>2.29.1</allure.version>
         <aspectj.version>1.9.21.1</aspectj.version>
         <jackson.version>2.16.1</jackson.version>
+        <faker.version>1.0.2</faker.version>
 
         <surefire-plugin.version>3.1.2</surefire-plugin.version>
         <allure-plugin.version>2.12.0</allure-plugin.version>
@@ -75,6 +76,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>${faker.version}</version>
         </dependency>
     </dependencies>
 
