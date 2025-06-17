@@ -1,0 +1,13 @@
+spring:
+    application:
+        name: OnlineBookstore
+    profiles:
+        active: ${PROFILE}
+    main:
+        banner-mode: off
+        lazy-initialization: true
+    cloud:
+        openfeign:
+            httpclient:
+                disable-ssl-validation: true
+                enabled: true
