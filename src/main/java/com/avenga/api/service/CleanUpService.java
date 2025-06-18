@@ -1,5 +1,6 @@
 package com.avenga.api.service;
 
+import com.avenga.api.dto.author.AuthorDto;
 import com.avenga.api.dto.book.BookDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class CleanUpService extends BaseService {
 
     private final BookService bookService;
+    private final AuthorService authorService;
 
     /**
      * Deletes all the objects created within a certain test class during the test run
@@ -30,6 +32,7 @@ public class CleanUpService extends BaseService {
                 try {
                     switch (item) {
                         case BookDto bookDto -> bookService.deleteBook(bookDto);
+                        case AuthorDto authorDto -> authorService.deleteAuthor(authorDto);
                         default -> throw new IllegalStateException("Unexpected object: " + item
                                 + ". Expected either BookDto or the AuthorDto");
                     }
