@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents the Book object
+ */
 @Getter
 @Builder
 @NoArgsConstructor

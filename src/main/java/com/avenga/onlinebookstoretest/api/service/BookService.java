@@ -16,6 +16,11 @@ import java.util.List;
 
 import static com.avenga.onlinebookstoretest.api.dto.book.BookField.*;
 
+/**
+ * <p>A service class for managing the {@link BookDto} objects</p>
+ * <p>It allows to prepare {@link BookDto} objects with random data and a specific fields that can be used for create/update operations.</p>
+ * <p>It also allows to perform actual CRUD operations with the {@link BookDto} objects</p>
+ */
 @Slf4j
 @Service
 public class BookService extends BaseService {
@@ -36,22 +41,42 @@ public class BookService extends BaseService {
         log.debug("The max book id is {}", lastBookId);
     }
 
+    /**
+     * Prepares a {@link BookDto} DTO with the calculated id and some random data
+     * @return a {@link BookDto} to create a book object
+     */
     @Step("Prepare a random book request body")
     public BookDto prepareRandomBookDto() {
         return prepareRandomBookDto(++lastBookId);
     }
 
+    /**
+     * Prepares a {@link BookDto} DTO with the calculated id and some random data for the specified fields
+     * @param bookFields an array of {@link BookField}
+     * @return a {@link BookDto} to create a book object
+     */
     @Step("Prepare a random book request body")
     public BookDto prepareRandomBookDto(BookField... bookFields) {
         return prepareRandomBookDto(++lastBookId, bookFields);
     }
 
+    /**
+     * Prepares a {@link BookDto} DTO with the specified id and some random data for all the fields
+     * @param bookId the specific id of the {@link BookDto} object
+     * @return a {@link BookDto} to create a book object
+     */
     @Step("Create a book request body with random data for the book id {0}")
     public BookDto prepareRandomBookDto(int bookId) {
         log.info("Preparing a book dto with random data for id {}", bookId);
         return prepareRandomBookDto(bookId, ID, TITLE, DESCRIPTION, EXCERPT, PAGE_COUNT, PUBLISH_DATE);
     }
 
+    /**
+     * Prepares a {@link BookDto} DTO with the specified id and some random data for the specified fields
+     * @param bookId the specific id of the {@link BookDto} object
+     * @param bookFields an array of {@link BookField}
+     * @return a {@link BookDto} to create a book object
+     */
     @Step("Create a book request body with random data for the certain fields for the book id {0}")
     public BookDto prepareRandomBookDto(int bookId, BookField... bookFields) {
         log.info("Building a book dto with random data for fields {}", Arrays.toString(bookFields));
@@ -71,12 +96,21 @@ public class BookService extends BaseService {
         return bookDtoBuilder.build();
     }
 
+    /**
+     * Retrieves the list of all the {@link BookDto} objects
+     * @return a list of {@link BookDto} objects
+     */
     @Step("Get all the books")
     public List<BookDto> getBooks() {
         log.info("Getting all books");
         return bookClient.getBooks();
     }
 
+    /**
+     * Retrieves one {@link BookDto} object by its id
+     * @param bookId the id of the {@link BookDto} object
+     * @return a {@link BookDto} object
+     */
     @Step("Get the book by id {0}")
     public BookDto getBook(int bookId) {
         log.info("Getting the book with id {}", bookId);
@@ -84,6 +118,14 @@ public class BookService extends BaseService {
         return bookClient.getBook(bookId);
     }
 
+    /**
+     * <p>A single method to create a random {@link BookDto} object</p>
+     * <p>First it prepares the {@link BookDto} object with some random data for the request.
+     * Then it performs the request to actually create this object</p>
+     * <p>When the object is created the method adds this object the clean up list
+     * so that the {@link CleanUpService} could remove it after the test</p>
+     * @return created {@link BookDto} object
+     */
     @Step("Create a random book")
     public BookDto createRandomBook() {
         var randomBookDto = prepareRandomBookDto();
@@ -94,6 +136,13 @@ public class BookService extends BaseService {
         return createdBookDto;
     }
 
+    /**
+     * <p>Creates a prepared {@link BookDto} object</p>
+     * <p>When the object is created the method adds this object the clean up list
+     * so that the {@link CleanUpService} could remove it after the test</p>
+     * @param bookDto the prepared {@link BookDto} to create
+     * @return created {@link BookDto} object
+     */
     @Step("Create a new book")
     public BookDto createBook(BookDto bookDto) {
         log.info("Creating a new book");
@@ -107,6 +156,11 @@ public class BookService extends BaseService {
         return createdBookDto;
     }
 
+    /**
+     * Updates the specified {@link BookDto} object
+     * @param bookDto {@link BookDto} to update
+     * @return updated {@link BookDto} object
+     */
     @Step("Update the book with")
     public BookDto updateBook(BookDto bookDto) {
         var bookId = bookDto.getId();
@@ -115,6 +169,10 @@ public class BookService extends BaseService {
         return bookClient.updateBook(bookId, bookDto);
     }
 
+    /**
+     * Deletes the specified {@link BookDto} object
+     * @param bookDto
+     */
     @Step("Delete the book")
     public void deleteBook(BookDto bookDto) {
         var bookId = bookDto.getId();
@@ -122,6 +180,10 @@ public class BookService extends BaseService {
         bookClient.deleteBook(bookId);
     }
 
+    /**
+     * Returns the last calculated id of the existing books
+     * @return last id of the books
+     */
     @Step("Get the last id of the existing books")
     public int getLastBookId() {
         log.info("Returning the last book id ({})", lastBookId);

@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Represents the HTTP client with the CRUD operations for the /Books endpoints
+ */
 @FeignClient(name = "book-client", url = "${app.url}")
 public interface BookClient {
 
