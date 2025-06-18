@@ -1,6 +1,6 @@
 package com.avenga.onlinebookstoretest.api.service;
 
-import com.avenga.onlinebookstoretest.api.dto.BookDto;
+import com.avenga.onlinebookstoretest.api.dto.book.BookDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

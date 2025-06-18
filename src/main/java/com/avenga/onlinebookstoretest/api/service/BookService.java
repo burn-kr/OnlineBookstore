@@ -1,16 +1,20 @@
 package com.avenga.onlinebookstoretest.api.service;
 
 import com.avenga.onlinebookstoretest.api.client.BookClient;
-import com.avenga.onlinebookstoretest.api.dto.BookDto;
+import com.avenga.onlinebookstoretest.api.dto.book.BookDto;
+import com.avenga.onlinebookstoretest.api.dto.book.BookField;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.avenga.onlinebookstoretest.api.dto.book.BookField.*;
 
 @Slf4j
 @Service
@@ -37,17 +41,34 @@ public class BookService extends BaseService {
         return prepareRandomBookDto(++lastBookId);
     }
 
+    @Step("Prepare a random book request body")
+    public BookDto prepareRandomBookDto(BookField... bookFields) {
+        return prepareRandomBookDto(++lastBookId, bookFields);
+    }
+
     @Step("Create a book request body with random data for the book id {0}")
     public BookDto prepareRandomBookDto(int bookId) {
         log.info("Preparing a book dto with random data for id {}", bookId);
-        return BookDto.builder()
-                .id(bookId)
-                .title(faker.book().title())
-                .description(faker.lorem().sentence())
-                .excerpt(faker.lorem().paragraph(3))
-                .pageCount(faker.random().nextInt(100, 1000))
-                .publishDate(LocalDateTime.now().toString())
-                .build();
+        return prepareRandomBookDto(bookId, ID, TITLE, DESCRIPTION, EXCERPT, PAGE_COUNT, PUBLISH_DATE);
+    }
+
+    @Step("Create a book request body with random data for the certain fields for the book id {0}")
+    public BookDto prepareRandomBookDto(int bookId, BookField... bookFields) {
+        log.info("Building a book dto with random data for fields {}", Arrays.toString(bookFields));
+        var bookDtoBuilder = BookDto.builder();
+
+        Arrays.stream(bookFields).forEach(bookField -> {
+            switch (bookField) {
+                case ID -> bookDtoBuilder.id(bookId);
+                case TITLE -> bookDtoBuilder.title(faker.book().title());
+                case DESCRIPTION -> bookDtoBuilder.description(faker.lorem().sentence());
+                case EXCERPT -> bookDtoBuilder.excerpt(faker.lorem().paragraph(3));
+                case PAGE_COUNT -> bookDtoBuilder.pageCount(faker.random().nextInt(100, 1000));
+                case PUBLISH_DATE -> bookDtoBuilder.publishDate(LocalDateTime.now().toString());
+            }
+        });
+
+        return bookDtoBuilder.build();
     }
 
     @Step("Get all the books")
@@ -99,5 +120,11 @@ public class BookService extends BaseService {
         var bookId = bookDto.getId();
         log.info("Deleting a book with id {}", bookId);
         bookClient.deleteBook(bookId);
+    }
+
+    @Step("Get the last id of the existing books")
+    public int getLastBookId() {
+        log.info("Returning the last book id ({})", lastBookId);
+        return lastBookId;
     }
 }

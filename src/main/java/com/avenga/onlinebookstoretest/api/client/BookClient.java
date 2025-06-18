@@ -1,6 +1,6 @@
 package com.avenga.onlinebookstoretest.api.client;
 
-import com.avenga.onlinebookstoretest.api.dto.BookDto;
+import com.avenga.onlinebookstoretest.api.dto.book.BookDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
