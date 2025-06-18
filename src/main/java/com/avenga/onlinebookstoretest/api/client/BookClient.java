@@ -16,14 +16,14 @@ public interface BookClient {
     List<BookDto> getBooks();
 
     @GetMapping(BOOK_URL)
-    BookDto getBook(@PathVariable int id);
+    BookDto getBook(@PathVariable("id") int id);
 
     @PostMapping(BASE_BOOKS_URL)
     BookDto createBook(BookDto bookDto);
 
     @PutMapping(BOOK_URL)
-    BookDto updateBook(@PathVariable int id, BookDto bookDto);
+    BookDto updateBook(@PathVariable("id") int id, BookDto bookDto);
 
     @DeleteMapping(BOOK_URL)
-    void deleteBook(@PathVariable int id);
+    void deleteBook(@PathVariable("id") int id);
 }
