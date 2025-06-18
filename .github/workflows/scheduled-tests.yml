@@ -1,0 +1,76 @@
+# .github/workflows/scheduled-tests.yml
+name: Scheduled E2E Test Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_module:
+        description: 'Specify the Maven module to run tests from'
+        required: false
+        default: 'online-bookstore-test'
+
+      environment:
+        description: 'Select the environment for test execution'
+        required: true
+        type: choice
+        options:
+          - dev
+        default: 'dev'
+
+  schedule:
+    - cron: '0 1 * * *' # 01:00 UTC (04:00 EEST)
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Get Maven Cache Directory
+        id: maven-cache-dir
+        run: echo "::set-output name=dir::$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)"
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.maven-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Run Maven Tests
+        run: |
+          SELECTED_PROFILE="${{ github.event.inputs.environment || '' }}"
+          MAVEN_PROFILE_ARG=""
+          if [ -n "$SELECTED_PROFILE" ]; then
+            MAVEN_PROFILE_ARG="-Dspring.profiles.active=$SELECTED_PROFILE"
+          fi
+          
+          mvn clean verify $MAVEN_PROFILE_ARG -Dallure.results.directory=${{ github.workspace }}/target/allure-results -pl ${{ github.event.inputs.test_module || 'online-bookstore-test' }}
+
+      - name: Upload Allure Results (Raw Data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results
+
+      - name: Build Allure Report
+        if: always()
+        run: |
+          mvn allure:report
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/test-report
