@@ -59,7 +59,7 @@ jobs:
             MAVEN_PROFILE_ARG="-Dspring.profiles.active=$SELECTED_PROFILE"
           fi
           
-          mvn clean verify $MAVEN_PROFILE_ARG -Dallure.results.directory=${{ github.workspace }}/target/allure-results -pl ${{ github.event.inputs.test_module || 'online-bookstore-test' }}
+          mvn clean verify $MAVEN_PROFILE_ARG -Dallure.results.directory=${{ github.workspace }}/target/allure-results
 
       - name: Upload Allure Results (Raw Data)
         if: always()
