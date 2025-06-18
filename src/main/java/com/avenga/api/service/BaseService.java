@@ -1,6 +1,6 @@
-package com.avenga.onlinebookstoretest.api.service;
+package com.avenga.api.service;
 
-import com.avenga.onlinebookstoretest.config.TestContext;
+import com.avenga.config.TestContext;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 

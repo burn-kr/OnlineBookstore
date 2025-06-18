@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.api.dto.book;
+package com.avenga.api.dto.book;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

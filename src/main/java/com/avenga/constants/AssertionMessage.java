@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.constants;
+package com.avenga.constants;
 
 /**
  * Contains the generic assertion message constants

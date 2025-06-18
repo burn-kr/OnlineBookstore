@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.api.dto.book;
+package com.avenga.api.dto.book;
 
 /**
  * Represents the set of fields of the {@link BookDto}:

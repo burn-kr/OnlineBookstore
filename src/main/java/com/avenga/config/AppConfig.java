@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.config;
+package com.avenga.config;
 
 import com.github.javafaker.Faker;
 import org.springframework.context.annotation.Bean;

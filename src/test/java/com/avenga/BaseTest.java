@@ -1,8 +1,8 @@
-package com.avenga.onlinebookstoretest;
+package com.avenga;
 
-import com.avenga.onlinebookstoretest.api.service.BookService;
-import com.avenga.onlinebookstoretest.api.service.CleanUpService;
-import com.avenga.onlinebookstoretest.config.listener.TestNGExecutionListener;
+import com.avenga.api.service.CleanUpService;
+import com.avenga.config.listener.TestNGExecutionListener;
+import com.avenga.api.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;

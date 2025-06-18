@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.config.listener;
+package com.avenga.config.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestContext;

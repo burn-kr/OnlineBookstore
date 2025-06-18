@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.constants;
+package com.avenga.constants;
 
 /**
  * Contains the test group name constants that can be used for grouping test

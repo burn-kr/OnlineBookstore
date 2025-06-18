@@ -1,21 +1,20 @@
-package com.avenga.onlinebookstoretest;
+package com.avenga;
 
-import com.avenga.onlinebookstoretest.api.dto.book.BookDto;
-import com.avenga.onlinebookstoretest.api.dto.book.BookField;
+import com.avenga.api.dto.book.BookField;
+import com.avenga.constants.AssertionMessage;
+import com.avenga.constants.TestGroup;
+import com.avenga.api.dto.book.BookDto;
 import feign.FeignException;
 import io.qameta.allure.Description;
+import org.assertj.core.api.Assertions;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.avenga.onlinebookstoretest.api.dto.book.BookField.*;
-import static com.avenga.onlinebookstoretest.constants.AssertionMessage.*;
-import static com.avenga.onlinebookstoretest.constants.TestGroup.ALL;
-import static com.avenga.onlinebookstoretest.constants.TestGroup.BOOKS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-@Test(groups = {ALL, BOOKS}, testName = "Books Test")
+@Test(groups = {TestGroup.ALL, TestGroup.BOOKS}, testName = "Books Test")
 public class BookTest extends BaseTest {
 
     private BookDto firstBook;
@@ -34,16 +33,16 @@ public class BookTest extends BaseTest {
         var leastExpectedListSize = 2;
         var booksList = bookService.getBooks();
 
-        assertThat(booksList)
-                .as(BOOKS_LIST_UNEXPECTEDLY_EMPTY)
+        Assertions.assertThat(booksList)
+                .as(AssertionMessage.BOOKS_LIST_UNEXPECTEDLY_EMPTY)
                 .isNotEmpty();
 
         assertSoftly(softAssertion -> {
             softAssertion.assertThat(booksList)
-                    .as(BOOKS_LIST_SIZE_IS_NOT_AS_EXPECTED)
+                    .as(AssertionMessage.BOOKS_LIST_SIZE_IS_NOT_AS_EXPECTED)
                     .hasSizeGreaterThanOrEqualTo(leastExpectedListSize);
             softAssertion.assertThat(booksList)
-                    .as(BOOKS_LIST_IS_NOT_AS_EXPECTED)
+                    .as(AssertionMessage.BOOKS_LIST_IS_NOT_AS_EXPECTED)
                     .contains(firstBook, secondBook);
         });
     }
@@ -54,7 +53,7 @@ public class BookTest extends BaseTest {
         var retrievedBook = bookService.getBook(firstBook.getId());
 
         assertThat(retrievedBook)
-                .as(BOOK_IS_NOT_AS_EXPECTED)
+                .as(AssertionMessage.BOOK_IS_NOT_AS_EXPECTED)
                 .isEqualTo(firstBook);
     }
 
@@ -71,7 +70,7 @@ public class BookTest extends BaseTest {
     @Test(description = "Create a book with required fields only Test")
     @Description("Verifies that a book with the required fields only can be successfully created")
     public void createBookWithRequiredFieldsOnlyTest() {
-        var bookDto = bookService.prepareRandomBookDto(ID, PAGE_COUNT, PUBLISH_DATE);
+        var bookDto = bookService.prepareRandomBookDto(BookField.ID, BookField.PAGE_COUNT, BookField.PUBLISH_DATE);
         var createdBook = bookService.createBook(bookDto);
         var actualBook = bookService.getBook(bookDto.getId());
 
@@ -118,9 +117,9 @@ public class BookTest extends BaseTest {
     @DataProvider
     public Object[][] bookFieldsProvider() {
         return new Object[][] {
-                {TITLE, DESCRIPTION, EXCERPT, PAGE_COUNT, PUBLISH_DATE}, // missing ID field
-                {ID, TITLE, DESCRIPTION, EXCERPT, PUBLISH_DATE}, // missing DESCRIPTION field
-                {ID, TITLE, DESCRIPTION, EXCERPT, PAGE_COUNT}, // missing PUBLISH_DATE field
+                {BookField.TITLE, BookField.DESCRIPTION, BookField.EXCERPT, BookField.PAGE_COUNT, BookField.PUBLISH_DATE}, // missing ID field
+                {BookField.ID, BookField.TITLE, BookField.DESCRIPTION, BookField.EXCERPT, BookField.PUBLISH_DATE}, // missing DESCRIPTION field
+                {BookField.ID, BookField.TITLE, BookField.DESCRIPTION, BookField.EXCERPT, BookField.PAGE_COUNT}, // missing PUBLISH_DATE field
         };
     }
 
@@ -141,10 +140,10 @@ public class BookTest extends BaseTest {
      */
     private void verifyBook(BookDto expectedBook, BookDto managedBook, BookDto actualBook) {
         assertThat(managedBook)
-                .as(BOOK_IS_NOT_AS_EXPECTED)
+                .as(AssertionMessage.BOOK_IS_NOT_AS_EXPECTED)
                 .isEqualTo(expectedBook);
         assertThat(actualBook)
-                .as(BOOK_IS_NOT_AS_EXPECTED)
+                .as(AssertionMessage.BOOK_IS_NOT_AS_EXPECTED)
                 .isEqualTo(expectedBook);
     }
 }

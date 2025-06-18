@@ -1,8 +1,8 @@
-package com.avenga.onlinebookstoretest.api.service;
+package com.avenga.api.service;
 
-import com.avenga.onlinebookstoretest.api.client.BookClient;
-import com.avenga.onlinebookstoretest.api.dto.book.BookDto;
-import com.avenga.onlinebookstoretest.api.dto.book.BookField;
+import com.avenga.api.client.BookClient;
+import com.avenga.api.dto.book.BookDto;
+import com.avenga.api.dto.book.BookField;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.avenga.onlinebookstoretest.api.dto.book.BookField.*;
+import static com.avenga.api.dto.book.BookField.*;
 
 /**
  * <p>A service class for managing the {@link BookDto} objects</p>

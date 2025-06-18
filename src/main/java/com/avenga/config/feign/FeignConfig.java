@@ -1,4 +1,4 @@
-package com.avenga.onlinebookstoretest.config.feign;
+package com.avenga.config.feign;
 
 import feign.Logger;
 import org.springframework.context.annotation.Bean;
