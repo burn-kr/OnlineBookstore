@@ -11,3 +11,6 @@ spring:
             httpclient:
                 disable-ssl-validation: true
                 enabled: true
+logging:
+    level:
+        com.avenga: debug
