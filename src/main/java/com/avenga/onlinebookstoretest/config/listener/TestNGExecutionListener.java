@@ -23,7 +23,7 @@ public class TestNGExecutionListener extends TestListenerAdapter {
 
 	@Override
 	public void onTestStart(ITestResult result) {
-		log.info("\n" + ANSI_GREEN + """
+		log.debug("\n" + ANSI_GREEN + """
 						 _____                _       ____    _                    _                _
 						|_   _|   ___   ___  | |_    / ___|  | |_    __ _   _ __  | |_    ___    __| |
 						  | |    / _ \\ / __| | __|   \\___ \\  | __|  / _` | | '__| | __|  / _ \\  / _` |
@@ -40,7 +40,7 @@ public class TestNGExecutionListener extends TestListenerAdapter {
 		log.info("{}PASSED{}: {}#{}", ANSI_GREEN, ANSI_RESET, result.getTestClass().getRealClass().getName(),
 				result.getMethod().getMethodName());
 
-		log.info("\n" + ANSI_GREEN + """ 
+		log.debug("\n" + ANSI_GREEN + """ 
 				  _____                _       ____                                   _
 				 |_   _|   ___   ___  | |_    |  _ \\    __ _   ___   ___    ___    __| |
 				   | |    / _ \\ / __| | __|   | |_) |  / _` | / __| / __|  / _ \\  / _` |
@@ -54,7 +54,7 @@ public class TestNGExecutionListener extends TestListenerAdapter {
 
 		log.error(result.getThrowable().getMessage());
 
-		log.error("\n" + ANSI_RED + """ 
+		log.debug("\n" + ANSI_RED + """ 
 				  _____                _       _____           _   _              _
 				 |_   _|   ___   ___  | |_    |  ___|   __ _  (_) | |   ___    __| |
 				   | |    / _ \\ / __| | __|   | |_     / _` | | | | |  / _ \\  / _` |

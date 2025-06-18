@@ -1,6 +1,6 @@
 target
 .mvn
-allure-results
+.allure
 
 ### IntelliJ IDEA ###
 .idea
