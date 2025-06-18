@@ -17,12 +17,13 @@ public class BookService extends BaseService {
 
     private final BookClient bookClient;
 
-    public BookDto createRandomBookDto() {
+    @Step("Create a book request body with random data")
+    public BookDto prepareRandomBookDto() {
         return BookDto.builder()
-                .title("")
-                .description("")
-                .excerpt("")
-                .pageCount(0)
+                .title(faker.book().title())
+                .description(faker.lorem().sentence())
+                .excerpt(faker.lorem().paragraph(3))
+                .pageCount(faker.random().nextInt(100, 1000))
                 .publishDate(LocalDateTime.now().toString())
                 .build();
     }
@@ -33,15 +34,35 @@ public class BookService extends BaseService {
         return bookClient.getBooks();
     }
 
+    @Step("Get the book by id")
+    public BookDto getBook(int bookId) {
+        log.info("Getting the book with id {}", bookId);
+
+        return bookClient.getBook(bookId);
+    }
+
+    @Step("Create a new book")
     public BookDto createBook(BookDto bookDto) {
         log.info("Creating a new book");
 
-        testContext.addToCleanUpList(bookDto, stackWalker.getCallerClass().getSimpleName());
+        var createdBookDto = bookClient.createBook(bookDto);
+        testContext.addToCleanUpList(createdBookDto, stackWalker.getCallerClass().getSimpleName());
 
         return bookDto;
     }
 
-    public void deleteBook(Long bookId) {
+    @Step("Update the book")
+    public BookDto updateBook(BookDto bookDto) {
+        var bookId = bookDto.getId();
+        log.info("Updating the book with id {}", bookId);
+
+        return bookClient.updateBook(bookId, bookDto);
+    }
+
+    @Step("Delete the book")
+    public void deleteBook(BookDto bookDto) {
+        var bookId = bookDto.getId();
         log.info("Deleting a book with id {}", bookId);
+        bookClient.deleteBook(bookId);
     }
 }

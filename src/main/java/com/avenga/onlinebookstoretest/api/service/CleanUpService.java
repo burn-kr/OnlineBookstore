@@ -22,7 +22,7 @@ public class CleanUpService extends BaseService {
             cleanUpList.forEach(item -> {
                 try {
                     switch (item) {
-                        case BookDto bookDto -> bookService.deleteBook(bookDto.getId());
+                        case BookDto bookDto -> bookService.deleteBook(bookDto);
                         default -> throw new IllegalStateException("Unexpected object: " + item
                                 + ". Expected either BookDto or the AuthorDto");
                     }
