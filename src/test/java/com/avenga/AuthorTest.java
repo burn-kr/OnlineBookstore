@@ -65,9 +65,9 @@ public class AuthorTest extends BaseTest {
                 .isEqualTo(firstAuthor);
     }
 
-    @Test(description = "Get author by book Test", groups = SMOKE)
-    @Description("Verifies that an author can be successfully retrieved by the related book")
-    public void getAuthorByBookTest() {
+    @Test(description = "Get authors by book Test", groups = SMOKE)
+    @Description("Verifies that a list of authors can be successfully retrieved by the related book")
+    public void getAuthorsByBookTest() {
         var retrievedAuthors = authorService.getAuthorsByBook(firstBook);
 
         Assertions.assertThat(retrievedAuthors)
@@ -141,9 +141,9 @@ public class AuthorTest extends BaseTest {
         verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Get author by non existing book Test", groups = SMOKE)
+    @Test(description = "Get authors by non existing book Test", groups = SMOKE)
     @Description("Verifies that an empty list of authors is returned when requesting authors by a non existing book")
-    public void getAuthorByNonExistingBookTest() {
+    public void getAuthorsByNonExistingBookTest() {
         var nonExistingBook = bookService.prepareRandomBookDto();
         var retrievedAuthors = authorService.getAuthorsByBook(nonExistingBook);
 
