@@ -1,13 +1,18 @@
 package com.avenga.api.service;
 
 import com.avenga.api.client.BookClient;
+import com.avenga.api.dto.ErrorResponseDto;
 import com.avenga.api.dto.book.BookDto;
 import com.avenga.api.dto.book.BookField;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -126,6 +131,22 @@ public class BookService extends BaseService {
     }
 
     /**
+     * Retrieves book information by its ID, expecting an error response.
+     * It attempts to deserialize the raw Feign HTTP response body into an {@link ErrorResponseDto}.
+     *
+     * @param bookId the id of the book to retrieve
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization.
+     */
+    @Step("Get the book by id {0}")
+    public ErrorResponseDto getBookRaw(int bookId) {
+        log.info("Getting the book with id {}", bookId);
+        var response = bookClient.getBookRaw(bookId);
+
+        return readErrorResponseBody(response);
+    }
+
+    /**
      * <p>A single method to create a random {@link BookDto} object</p>
      * <p>First it prepares the {@link BookDto} object with some random data for the request.
      * Then it performs the request to actually create this object</p>
@@ -166,6 +187,37 @@ public class BookService extends BaseService {
     }
 
     /**
+     * <p>Creates a prepared {@link BookDto} object expecting an error response.
+     * It attempts to deserialize the raw Feign HTTP response body into an {@link ErrorResponseDto}.</p>
+     * <p>If the object was created the method adds this object the cleanup list based on the test class
+     * so that the {@link CleanUpService} could remove it after the test</p>
+     *
+     * @param bookDto the prepared {@link BookDto} object to create
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization.
+     */
+    @Step("Create a new book")
+    public ErrorResponseDto createBookRaw(BookDto bookDto) {
+        log.info("Creating a new book");
+
+        var response = bookClient.createBookRaw(bookDto);
+
+        try {
+            // in case there was no error and the book was created make sure we add it to the cleanup list
+            if (response.status() == HttpStatus.OK.value()) {
+                var json = IOUtils.toString(response.body().asInputStream());
+                var book = new ObjectMapper().readValue(json, BookDto.class);
+
+                testContext.addToCleanUpList(book, stackWalker.getCallerClass().getSimpleName());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read/deserialize the response body into the BookDto object");
+        }
+
+        return readErrorResponseBody(response);
+    }
+
+    /**
      * Updates the specified {@link BookDto} object
      *
      * @param bookDto {@link BookDto} to update
@@ -180,6 +232,25 @@ public class BookService extends BaseService {
     }
 
     /**
+     * Updates the specified {@link BookDto} object and expects an {@link ErrorResponseDto}.
+     * It handles the raw Feign HTTP response and attempts to deserialize the response body
+     * into an {@link ErrorResponseDto}.
+     *
+     * @param bookDto {@link BookDto} to update
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization
+     */
+    @Step("Update the book")
+    public ErrorResponseDto updateBookRaw(BookDto bookDto) {
+        var bookId = bookDto.getId();
+        log.info("Updating the book with id {}", bookId);
+
+        var response = bookClient.updateBookRaw(bookId, bookDto);
+
+        return readErrorResponseBody(response);
+    }
+
+    /**
      * Deletes the specified {@link BookDto} object
      *
      * @param bookDto the {@link BookDto} object to delete
@@ -189,6 +260,24 @@ public class BookService extends BaseService {
         var bookId = bookDto.getId();
         log.info("Deleting the book with id {}", bookId);
         bookClient.deleteBook(bookId);
+    }
+
+    /**
+     * Deletes the specified {@link BookDto} object and expects an {@link ErrorResponseDto}.
+     * It handles the raw Feign HTTP response and attempts to deserialize the response body
+     * into an {@link ErrorResponseDto}.
+     *
+     * @param bookDto {@link BookDto} to update
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization
+     */
+    @Step("Delete the book")
+    public ErrorResponseDto deleteBookRaw(BookDto bookDto) {
+        var bookId = bookDto.getId();
+        log.info("Deleting the book with id {}", bookId);
+        var response = bookClient.deleteBookRaw(bookId);
+
+        return readErrorResponseBody(response);
     }
 
     /**

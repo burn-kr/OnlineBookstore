@@ -1,15 +1,21 @@
 package com.avenga.api.service;
 
 import com.avenga.api.client.AuthorClient;
+import com.avenga.api.dto.ErrorResponseDto;
 import com.avenga.api.dto.author.AuthorField;
 import com.avenga.api.dto.book.BookDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.avenga.api.dto.author.AuthorDto;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,7 +81,7 @@ public class AuthorService extends BaseService {
      * @param authorFields an array of {@link AuthorField}
      * @return {@link AuthorDto} to create an author object
      */
-    @Step("Create an author request body with random data for the certain fields for the author id {0} with book id {1}")
+    @Step("Create an author request body with random data for the certain fields for the author id {0} with book {1}")
     public AuthorDto prepareRandomAuthorDto(int authorId, BookDto book, AuthorField... authorFields) {
         var bookId = book.getId();
         log.info("Building an author dto with id {}, bookId {} and some random data for fields {}",
@@ -136,6 +142,37 @@ public class AuthorService extends BaseService {
     }
 
     /**
+     * <p>Creates a prepared {@link AuthorDto} object expecting an error response.
+     * It attempts to deserialize the raw Feign HTTP response body into an {@link ErrorResponseDto}.</p>
+     * <p>If the object was created the method adds this object the cleanup list based on the test class
+     * so that the {@link CleanUpService} could remove it after the test</p>
+     *
+     * @param authorDto the prepared {@link AuthorDto} object to create
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization.
+     */
+    @Step("Create a new author")
+    public ErrorResponseDto createAuthorRaw(AuthorDto authorDto) {
+        log.info("Creating a new author");
+
+        var response = authorClient.createAuthorRaw(authorDto);
+
+        try {
+            // in case there was no error and the book was created make sure we add it to the cleanup list
+            if (response.status() == HttpStatus.OK.value()) {
+                var json = IOUtils.toString(response.body().asInputStream(), Charsets.UTF_8);
+                var author = new ObjectMapper().readValue(json, AuthorDto.class);
+
+                testContext.addToCleanUpList(author, stackWalker.getCallerClass().getSimpleName());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read/deserialize the response body into the AuthorDto object");
+        }
+
+        return readErrorResponseBody(response);
+    }
+
+    /**
      * Retrieves the list of all the {@link AuthorDto} objects
      *
      * @return a list of {@link AuthorDto} objects
@@ -159,13 +196,29 @@ public class AuthorService extends BaseService {
     }
 
     /**
+     * Retrieves an author information by his ID, expecting an error response.
+     * It attempts to deserialize the raw Feign HTTP response body into an {@link ErrorResponseDto}.
+     *
+     * @param authorId the id of the author to retrieve
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization.
+     */
+    @Step("Get the author by id {0}")
+    public ErrorResponseDto getAuthorRaw(int authorId) {
+        log.info("Getting the author with id {}", authorId);
+        var response = authorClient.getAuthorRaw(authorId);
+
+        return readErrorResponseBody(response);
+    }
+
+    /**
      * Retrieves one {@link AuthorDto} object by the book id
      *
      * @param book the {@link BookDto} of the author
      * @return an {@link AuthorDto} object
      */
     @Step("Get the author by book")
-    public AuthorDto getAuthorByBook(BookDto book) {
+    public List<AuthorDto> getAuthorsByBook(BookDto book) {
         var bookId = book.getId();
         log.info("Getting the author by the book id {}", bookId);
         return authorClient.getAuthorByBook(bookId);
@@ -183,6 +236,25 @@ public class AuthorService extends BaseService {
         log.info("Updating the author with id {}", authorId);
 
         return authorClient.updateAuthor(authorId, authorDto);
+    }
+
+    /**
+     * Updates the specified {@link AuthorDto} object and expects an {@link ErrorResponseDto}.
+     * It handles the raw Feign HTTP response and attempts to deserialize the response body
+     * into an {@link ErrorResponseDto}.
+     *
+     * @param authorDto {@link AuthorDto} to update
+     * @return an {@link ErrorResponseDto} object parsed from the HTTP response body
+     * @throws RuntimeException if an I/O error occurs during response body reading or deserialization
+     */
+    @Step("Update the author")
+    public ErrorResponseDto updateAuthorRaw(AuthorDto authorDto) {
+        var authorId = authorDto.getId();
+        log.info("Updating the author with id {}", authorId);
+
+        var response = authorClient.updateAuthorRaw(authorId, authorDto);
+
+        return readErrorResponseBody(response);
     }
 
     /**

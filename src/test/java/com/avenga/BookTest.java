@@ -5,6 +5,7 @@ import com.avenga.api.dto.book.BookDto;
 import feign.FeignException;
 import io.qameta.allure.Description;
 import org.assertj.core.api.Assertions;
+import org.springframework.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,7 +52,7 @@ public class BookTest extends BaseTest {
     }
 
     @Test(description = "Get book Test")
-    @Description("Verifies the a book can be successfully retrieved by its id")
+    @Description("Verifies that a book can be successfully retrieved by its id")
     public void getBookTest() {
         var retrievedBook = bookService.getBook(firstBook.getId());
 
@@ -90,31 +91,44 @@ public class BookTest extends BaseTest {
         verifyBook(firstBook, updatedBook, actualBook);
     }
 
-    @Test(description = "Delete book Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Delete book Test")
     @Description("Verifies that a book can be successfully deleted")
     public void deleteBookTest() {
-        bookService.deleteBook(secondBook);
-        bookService.getBook(secondBook.getId());
+        var book = bookService.createRandomBook();
+        // to make sure it was actually created. In case of any response code other than 2XX Feign will throw an exception
+        bookService.getBook(book.getId());
+
+        bookService.deleteBook(book);
+        var errorResponse = bookService.getBookRaw(book.getId());
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Get a non existing book Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Get a non existing book Test")
     @Description("Verifies that an error is returned in case a non existing book is requested (non existing id)")
     public void getNonExistingBookTest() {
         var lastBookId = bookService.getLastBookId();
-        bookService.getBook(++lastBookId);
+        var errorResponse = bookService.getBookRaw(lastBookId);
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Create the same exact book Test", expectedExceptions = FeignException.Conflict.class)
+    @Test(description = "Create the same exact book Test")
     @Description("Verifies that an error is returned in case of an attempt to create a book duplicate")
     public void createSameExactBookTest() {
-        bookService.createBook(firstBook);
+        var errorResponse = bookService.createBookRaw(firstBook);
+
+        // TODO: clarify the error status and message
+        verifyResponseError(errorResponse, HttpStatus.CONFLICT, "Book ID already exists");
     }
 
-    @Test(description = "Update a non existing book Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Update a non existing book Test")
     @Description("Verifies that an error is returned in case of a non existing book update (non existing id)")
     public void updateNonExistingBookTest() {
         var bookToUpdate = bookService.prepareRandomBookDto();
-        bookService.updateBook(bookToUpdate);
+        var errorResponse = bookService.updateBookRaw(bookToUpdate);
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
     @DataProvider
@@ -126,12 +140,14 @@ public class BookTest extends BaseTest {
         };
     }
 
-    @Test(description = "Create a book without a required field Test", dataProvider = "bookFieldsProvider",
-            expectedExceptions = FeignException.BadRequest.class)
+    @Test(description = "Create a book without a required field Test", dataProvider = "bookFieldsProvider")
     @Description("Verifies that an error is returned in case of an attempt to create a new book without a required field")
     public void createBookWithoutRequiredFieldTest(BookField... bookFields) {
         var invalidBookDto = bookService.prepareRandomBookDto(bookFields);
-        bookService.createBook(invalidBookDto);
+        var errorResponse = bookService.createBookRaw(invalidBookDto);
+
+        // TODO: clarify the error status and message
+        verifyResponseError(errorResponse, HttpStatus.BAD_REQUEST, "Invalid data");
     }
 
     /**
