@@ -212,15 +212,15 @@ public class AuthorService extends BaseService {
     }
 
     /**
-     * Retrieves one {@link AuthorDto} object by the book id
+     * Retrieves the list of {@link AuthorDto} object by the book id
      *
      * @param book the {@link BookDto} of the author
      * @return an {@link AuthorDto} object
      */
-    @Step("Get the author by book")
+    @Step("Get the authors by book")
     public List<AuthorDto> getAuthorsByBook(BookDto book) {
         var bookId = book.getId();
-        log.info("Getting the author by the book id {}", bookId);
+        log.info("Getting the authors by the book id {}", bookId);
         return authorClient.getAuthorByBook(bookId);
     }
 
