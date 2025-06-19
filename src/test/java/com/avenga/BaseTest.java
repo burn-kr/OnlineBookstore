@@ -1,5 +1,6 @@
 package com.avenga;
 
+import com.avenga.api.service.AuthorService;
 import com.avenga.api.service.CleanUpService;
 import com.avenga.config.listener.TestNGExecutionListener;
 import com.avenga.api.service.BookService;
@@ -15,6 +16,9 @@ public abstract class BaseTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     protected BookService bookService;
+
+    @Autowired
+    protected AuthorService authorService;
 
     @Autowired
     private CleanUpService cleanUpService;
