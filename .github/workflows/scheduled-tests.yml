@@ -72,7 +72,7 @@ jobs:
       - name: Build Allure Report
         if: always() 
         run: |
-          mvn allure:report -Dallure.results.directory=${{ github.workspace }}/target/allure-results -Dallure.report.url=/OnlineBookstore/
+          mvn allure:report -Dallure.report.url=/OnlineBookstore/
           
       - name: Deploy Allure Report to GitHub Pages
         if: always()
