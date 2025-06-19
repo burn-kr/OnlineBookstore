@@ -9,4 +9,5 @@ public class TestGroup {
     public static final String ALL = "All";
     public static final String BOOKS = "Books";
     public static final String AUTHORS = "Authors";
+    public static final String SMOKE = "Smoke";
 }

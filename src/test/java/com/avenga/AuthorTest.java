@@ -12,8 +12,7 @@ import org.testng.annotations.Test;
 
 import static com.avenga.api.dto.author.AuthorField.*;
 import static com.avenga.constants.AssertionMessage.*;
-import static com.avenga.constants.TestGroup.ALL;
-import static com.avenga.constants.TestGroup.AUTHORS;
+import static com.avenga.constants.TestGroup.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -35,7 +34,7 @@ public class AuthorTest extends BaseTest {
         secondAuthor = authorService.createRandomAuthor(secondBook);
     }
 
-    @Test(description = "Get all authors Test")
+    @Test(description = "Get all authors Test", groups = SMOKE)
     @Description("Verifies that it's possible to retrieve all the authors")
     public void getAllAuthorsTest() {
         // The least expected amount of authors is 2 as we created 2 authors before the test
@@ -66,7 +65,7 @@ public class AuthorTest extends BaseTest {
                 .isEqualTo(firstAuthor);
     }
 
-    @Test(description = "Get author by book Test")
+    @Test(description = "Get author by book Test", groups = SMOKE)
     @Description("Verifies that an author can be successfully retrieved by the related book")
     public void getAuthorByBookTest() {
         var retrievedAuthor = authorService.getAuthorByBook(firstBook);
@@ -76,7 +75,7 @@ public class AuthorTest extends BaseTest {
                 .isEqualTo(firstAuthor);
     }
 
-    @Test(description = "Create a new author Test")
+    @Test(description = "Create a new author Test", groups = SMOKE)
     @Description("Verifies that a new author can be successfully created")
     public void createAuthorTest() {
         var authorDto = authorService.prepareRandomAuthorDto(firstBook);

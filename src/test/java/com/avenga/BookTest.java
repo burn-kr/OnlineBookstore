@@ -11,8 +11,7 @@ import org.testng.annotations.Test;
 
 import static com.avenga.api.dto.book.BookField.*;
 import static com.avenga.constants.AssertionMessage.*;
-import static com.avenga.constants.TestGroup.ALL;
-import static com.avenga.constants.TestGroup.BOOKS;
+import static com.avenga.constants.TestGroup.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -30,7 +29,7 @@ public class BookTest extends BaseTest {
         secondBook = bookService.createRandomBook();
     }
 
-    @Test(description = "Get all books Test")
+    @Test(description = "Get all books Test", groups = SMOKE)
     @Description("Verifies that it's possible to retrieve all the books")
     public void getAllBooksTest() {
         // The least expected amount of books is 2 as we created 2 books before the test
@@ -61,7 +60,7 @@ public class BookTest extends BaseTest {
                 .isEqualTo(firstBook);
     }
 
-    @Test(description = "Create a new book Test")
+    @Test(description = "Create a new book Test", groups = SMOKE)
     @Description("Verifies that a new book can be successfully created")
     public void createBookTest() {
         var bookDto = bookService.prepareRandomBookDto();
