@@ -35,6 +35,8 @@ public class BookService extends BaseService {
         log.debug("Getting all the books");
         var existingBookList = bookClient.getBooks();
 
+        // we only get the last id once then we just calculate it
+        // assuming that no one else adds objects as the regression execution is scheduled for the late night
         log.debug("Looking for the max id of the existing books");
         lastBookId = Collections.max(existingBookList, Comparator.comparing(BookDto::getId)).getId();
 

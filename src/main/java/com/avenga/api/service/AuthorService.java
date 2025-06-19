@@ -36,6 +36,8 @@ public class AuthorService extends BaseService {
         log.debug("Getting all the authors");
         var existingAuthorList = authorClient.getAuthors();
 
+        // we only get the last id once then we just calculate it
+        // assuming that no one else adds objects as the regression execution is scheduled for the late night
         log.debug("Looking for the max id of the existing authors");
         lastAuthorId = Collections.max(existingAuthorList, Comparator.comparing(AuthorDto::getId)).getId();
 
@@ -45,36 +47,37 @@ public class AuthorService extends BaseService {
     /**
      * Prepares a {@link AuthorDto} DTO with the calculated id, book id and some random data for all the fields
      *
-     * @param bookId the specific id of the book
+     * @param book the specific {@link BookDto} object related to the author
      * @return {@link AuthorDto} to create an author object
      */
     @Step("Create a random author request body")
-    public AuthorDto prepareRandomAuthorDto(int bookId) {
-        return prepareRandomAuthorDto(++lastAuthorId, bookId, ID, BOOK_ID, FIRST_NAME, LAST_NAME);
+    public AuthorDto prepareRandomAuthorDto(BookDto book) {
+        return prepareRandomAuthorDto(++lastAuthorId, book, ID, BOOK_ID, FIRST_NAME, LAST_NAME);
     }
 
     /**
      * Prepares a {@link AuthorDto} DTO with the calculated id, book id and some random data for the specified fields
      *
-     * @param bookId the specific id of the book
+     * @param book the specific {@link BookDto} object related to the author
      * @param authorFields an array of {@link AuthorField}
      * @return {@link AuthorDto} to create an author object
      */
     @Step("Create a random author request body")
-    public AuthorDto prepareRandomAuthorDto(int bookId, AuthorField... authorFields) {
-        return prepareRandomAuthorDto(++lastAuthorId, bookId, authorFields);
+    public AuthorDto prepareRandomAuthorDto(BookDto book, AuthorField... authorFields) {
+        return prepareRandomAuthorDto(++lastAuthorId, book, authorFields);
     }
 
     /**
      * Prepares a {@link AuthorDto} DTO with the specified id, book id and some random data for the specified fields
      *
      * @param authorId the specific id of the author
-     * @param bookId the specific id of the book
+     * @param book the specific {@link BookDto} object related to the author
      * @param authorFields an array of {@link AuthorField}
      * @return {@link AuthorDto} to create an author object
      */
     @Step("Create an author request body with random data for the certain fields for the author id {0} with book id {1}")
-    public AuthorDto prepareRandomAuthorDto(int authorId, int bookId, AuthorField... authorFields) {
+    public AuthorDto prepareRandomAuthorDto(int authorId, BookDto book, AuthorField... authorFields) {
+        var bookId = book.getId();
         log.info("Building an author dto with id {}, bookId {} and some random data for fields {}",
                 Arrays.toString(authorFields), authorId, bookId);
         var authorBuilder = AuthorDto.builder();
@@ -98,11 +101,12 @@ public class AuthorService extends BaseService {
      * <p>When the object is created the method adds this object the cleanup list based on the test class
      * so that the {@link CleanUpService} could remove it after the test</p>
      *
-     * @return created {@link BookDto} object
+     * @param book the specific {@link BookDto} object related to the author
+     * @return created {@link AuthorDto} object
      */
     @Step("Create a new random author")
-    public AuthorDto createRandomAuthor(int bookId) {
-        var randomAuthorDto = prepareRandomAuthorDto(bookId);
+    public AuthorDto createRandomAuthor(BookDto book) {
+        var randomAuthorDto = prepareRandomAuthorDto(book);
         var createdAuthorDto = createAuthor(randomAuthorDto);
 
         testContext.addToCleanUpList(createdAuthorDto, stackWalker.getCallerClass().getSimpleName());
@@ -191,5 +195,16 @@ public class AuthorService extends BaseService {
         var authorId = authorDto.getId();
         log.info("Deleting the author with id {}", authorId);
         authorClient.deleteAuthor(authorId);
+    }
+
+    /**
+     * Returns the last calculated id of the existing authors
+     *
+     * @return last id of the authors
+     */
+    @Step("Get the last id of the existing authors")
+    public int getLastAuthorId() {
+        log.info("Returning the last author id ({})", lastAuthorId);
+        return lastAuthorId;
     }
 }

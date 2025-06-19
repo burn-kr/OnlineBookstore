@@ -22,11 +22,11 @@ public class CleanUpService extends BaseService {
      * @param className name of the class
      */
     public void cleanUp(String className) {
-        log.info("Starting clean up for the {} class", className);
+        log.info("Starting cleanup for the {} class", className);
         var cleanUpList = testContext.getCleanUpList(className);
 
         if (cleanUpList == null || cleanUpList.isEmpty()) {
-            log.info("Nothing to clean up...");
+            log.info("Nothing to cleanup...");
         } else {
             cleanUpList.forEach(item -> {
                 try {
@@ -37,9 +37,10 @@ public class CleanUpService extends BaseService {
                                 + ". Expected either BookDto or the AuthorDto");
                     }
                 } catch (Exception e) {
-                    log.warn("Could not delete an item '{}'. Skip and continue with next one", item);
+                    log.warn("Could not delete an item '{}'. Skipping and continue with next one...", item);
                 }
             });
         }
+        log.info("Cleanup finished");
     }
 }
