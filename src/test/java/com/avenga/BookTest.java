@@ -52,7 +52,7 @@ public class BookTest extends BaseTest {
     }
 
     @Test(description = "Get book Test")
-    @Description("Verifies the a book can be successfully retrieved by its id")
+    @Description("Verifies that a book can be successfully retrieved by its id")
     public void getBookTest() {
         var retrievedBook = bookService.getBook(firstBook.getId());
 
@@ -140,8 +140,7 @@ public class BookTest extends BaseTest {
         };
     }
 
-    @Test(description = "Create a book without a required field Test", dataProvider = "bookFieldsProvider",
-            expectedExceptions = FeignException.BadRequest.class)
+    @Test(description = "Create a book without a required field Test", dataProvider = "bookFieldsProvider")
     @Description("Verifies that an error is returned in case of an attempt to create a new book without a required field")
     public void createBookWithoutRequiredFieldTest(BookField... bookFields) {
         var invalidBookDto = bookService.prepareRandomBookDto(bookFields);

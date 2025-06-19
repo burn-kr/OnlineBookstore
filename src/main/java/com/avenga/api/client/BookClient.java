@@ -39,4 +39,7 @@ public interface BookClient {
 
     @DeleteMapping(BOOK_URL)
     void deleteBook(@PathVariable("id") int id);
+
+    @DeleteMapping(BOOK_URL)
+    Response deleteBookRaw(@PathVariable("id") int id);
 }

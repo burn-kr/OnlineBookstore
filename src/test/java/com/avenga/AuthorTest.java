@@ -3,9 +3,9 @@ package com.avenga;
 import com.avenga.api.dto.author.AuthorDto;
 import com.avenga.api.dto.author.AuthorField;
 import com.avenga.api.dto.book.BookDto;
-import feign.FeignException;
 import io.qameta.allure.Description;
 import org.assertj.core.api.Assertions;
+import org.springframework.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -61,18 +61,21 @@ public class AuthorTest extends BaseTest {
         var retrievedAuthor = authorService.getAuthor(firstAuthor.getId());
 
         assertThat(retrievedAuthor)
-                .as(ITEM_IS_NOT_AS_EXPECTED)
+                .as(ITEM_IS_NOT_AS_EXPECTED.formatted(AUTHOR))
                 .isEqualTo(firstAuthor);
     }
 
     @Test(description = "Get author by book Test", groups = SMOKE)
     @Description("Verifies that an author can be successfully retrieved by the related book")
     public void getAuthorByBookTest() {
-        var retrievedAuthor = authorService.getAuthorByBook(firstBook);
+        var retrievedAuthors = authorService.getAuthorsByBook(firstBook);
 
-        assertThat(retrievedAuthor)
-                .as(ITEM_IS_NOT_AS_EXPECTED)
-                .isEqualTo(firstAuthor);
+        Assertions.assertThat(retrievedAuthors)
+                .as(ITEMS_LIST_UNEXPECTEDLY_EMPTY.formatted(AUTHOR))
+                .isNotEmpty();
+        assertThat(retrievedAuthors)
+                .as(ITEMS_LIST_IS_NOT_AS_EXPECTED.formatted(AUTHOR))
+                .contains(firstAuthor);
     }
 
     @Test(description = "Create a new author Test", groups = SMOKE)
@@ -115,38 +118,66 @@ public class AuthorTest extends BaseTest {
         verifyAuthor(firstAuthor, updatedAuthor, actualAuthor);
     }
 
-    @Test(description = "Delete author Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Delete author Test")
     @Description("Verifies that an author can be successfully deleted")
     public void deleteAuthorTest() {
+        var author = authorService.createRandomAuthor(firstBook);
+        // to make sure it was actually created.
+        // In case of any response code other than 2XX Feign will throw an exception
+        authorService.getAuthor(author.getId());
+
         authorService.deleteAuthor(secondAuthor);
-        authorService.getAuthor(secondAuthor.getId());
+        var errorResponse = authorService.getAuthorRaw(secondAuthor.getId());
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Get a non existing author Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Get a non existing author Test")
     @Description("Verifies that an error is returned in case a non existing author is requested (non existing id)")
     public void getNonExistingAuthorTest() {
         var lastAuthorId = authorService.getLastAuthorId();
-        authorService.getAuthor(++lastAuthorId);
+        var errorResponse = authorService.getAuthorRaw(++lastAuthorId);
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Create the same exact author Test", expectedExceptions = FeignException.Conflict.class)
+    @Test(description = "Get author by non existing book Test", groups = SMOKE)
+    @Description("Verifies that an empty list of authors is returned when requesting authors by a non existing book")
+    public void getAuthorByNonExistingBookTest() {
+        var nonExistingBook = bookService.prepareRandomBookDto();
+        var retrievedAuthors = authorService.getAuthorsByBook(nonExistingBook);
+
+        Assertions.assertThat(retrievedAuthors)
+                .as(ITEMS_LIST_NOT_EMPTY.formatted(AUTHOR))
+                .isEmpty();
+    }
+
+    @Test(description = "Create the same exact author Test")
     @Description("Verifies that an error is returned in case of an attempt to create an author duplicate")
     public void createSameExactAuthorTest() {
-        authorService.createAuthor(firstAuthor);
+        var errorResponse = authorService.createAuthorRaw(firstAuthor);
+
+        // TODO: clarify the error status and message
+        verifyResponseError(errorResponse, HttpStatus.CONFLICT, "Author ID already exists");
     }
 
-    @Test(description = "Create author for non existing book Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Create author for non existing book Test")
     @Description("Verify that an error is returned in case of attempt to create an author with non existing book id")
     public void createAuthorForNonExistingBookTest() {
         var nonExistingBook = bookService.prepareRandomBookDto();
-        authorService.createRandomAuthor(nonExistingBook);
+        var authorDto = authorService.prepareRandomAuthorDto(nonExistingBook);
+        var errorResponse = authorService.createAuthorRaw(authorDto);
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
-    @Test(description = "Update a non existing author Test", expectedExceptions = FeignException.NotFound.class)
+    @Test(description = "Update a non existing author Test")
     @Description("Verifies that an error is returned in case of a non existing author update (non existing id)")
     public void updateNonExistingAuthorTest() {
         var authorToUpdate = authorService.prepareRandomAuthorDto(firstBook);
-        authorService.updateAuthor(authorToUpdate);
+        var errorResponse = authorService.updateAuthorRaw(authorToUpdate);
+
+        verifyResponseError(errorResponse, HttpStatus.NOT_FOUND, "Not Found");
     }
 
     @DataProvider
@@ -157,12 +188,25 @@ public class AuthorTest extends BaseTest {
         };
     }
 
-    @Test(description = "Create an author without a required field Test", dataProvider = "authorFieldsProvider",
-            expectedExceptions = FeignException.BadRequest.class)
-    @Description("Verifies that an error is returned in case of an attempt to create a new author without a required field")
+    @Test(description = "Create an author without a required field Test", dataProvider = "authorFieldsProvider")
+    @Description("Verifies that an error is returned in case of an attempt to create a new author " +
+            "without a required field")
     public void createAuthorWithoutRequiredFieldTest(AuthorField... authorFields) {
         var invalidAuthorDto = authorService.prepareRandomAuthorDto(firstBook, authorFields);
-        authorService.createAuthor(invalidAuthorDto);
+        var errorResponse = authorService.createAuthorRaw(invalidAuthorDto);
+
+        // TODO: clarify the error status and message
+        verifyResponseError(errorResponse, HttpStatus.BAD_REQUEST, "Invalid data");
+    }
+
+    @Test(description = "Delete a book that is assigned to an author Test")
+    @Description("Verifies that an error is returned in case of an attempt to delete a book " +
+            "that is currently assigned to an author")
+    public void deleteBookAssignedToAuthorTest() {
+        var errorResponse = bookService.deleteBookRaw(firstBook);
+
+        // TODO: clarify the error status and message
+        verifyResponseError(errorResponse, HttpStatus.METHOD_NOT_ALLOWED, "Book in use");
     }
 
     /**
