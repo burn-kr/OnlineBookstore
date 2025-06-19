@@ -59,20 +59,21 @@ jobs:
             MAVEN_PROFILE_ARG="-Dspring.profiles.active=$SELECTED_PROFILE"
           fi
           
+          # Запуск тестов, генерирующих сырые результаты Allure в target/allure-results
           mvn clean verify $MAVEN_PROFILE_ARG -Dallure.results.directory=${{ github.workspace }}/target/allure-results
 
       - name: Upload Allure Results (Raw Data)
-        if: always()
+        if: always() 
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: target/allure-results
 
       - name: Build Allure Report
-        if: always()
+        if: always() 
         run: |
           mvn allure:report -Dallure.results.directory=${{ github.workspace }}/target/allure-results -Dallure.report.url=/OnlineBookstore/
-
+          
       - name: Deploy Allure Report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
