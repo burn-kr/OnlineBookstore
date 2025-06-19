@@ -71,7 +71,7 @@ jobs:
       - name: Build Allure Report
         if: always()
         run: |
-          mvn allure:report
+          mvn allure:report -Dallure.report.url=/OnlineBookstore/
 
       - name: Deploy Allure Report to GitHub Pages
         if: always()
