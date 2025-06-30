@@ -1,1 +1,0 @@
-{"id":609,"idBook":201,"firstName":"Jerome","lastName":"Bayer"}
